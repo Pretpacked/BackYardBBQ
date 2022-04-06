@@ -1,0 +1,36 @@
+- Moet er ook een online webshop komen?
+nee, alleen het beheren van de verhuurdaren BBQ. front end alleen BBQ huren.
+
+- Welke betallings mogelijkheiden moeten er mogelijk zijn?
+Nee, je moet alleen kunnen huren op specifieke momenten, alleen tussen 10/19. In de winkel betallen en ophalen!
+in de winkel.
+
+- Zijn alleen de Big Green Egg, Kamado Joe en The Bastard BBQ huurbaar?
+Dit zijn 3 catorogie, per catorogie moete er 3 formaten en of ?
+
+- Als iemand een BBQ huurt kan hij/zijn dan uit dagen kiezen op staat dit vast?
+per 3 dagen = 30 euro en dit telt op.
+
+- Moet de website alleen bestaan uit het verhuren van BBQ (front end)?
+Ja.
+
+- Back-end zal alles bij moeten houden, dit met een CRUD?
+Beheerder, moet je kunnen inloggen over de verhuurde BBQ.
+
+- Moet de gebruiker ingelogdt zijn voor dat een BBQ verhuurd kan worden? email lijst?
+Nee, het moet via een aanvraag formulier. bezorgen kost 15 euro extra.
+
+meerdere modellen in vooraart
+
+- heb je een huistel?
+ja via email verstuurd.
+
+id
+naam
+adres
+email
+telefoon
+huurperiod
+dagen
+totaal
+opmerkingen
