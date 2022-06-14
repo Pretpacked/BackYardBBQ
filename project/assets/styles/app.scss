@@ -1,0 +1,38 @@
+@import "~bootstrap/scss/bootstrap";
+
+body {
+    background-color: lightgray;
+}
+
+#login_form{
+
+    #inputEmail, #inputPassword{
+
+        margin: 2% 0;
+    }
+}
+
+.reset-margins{
+    margin-top:unset !important;
+}
+
+
+form{
+    margin-top: 5%;
+    div{
+        margin-bottom: 3%;
+        label{
+            text-align: center;
+            width: 50%;
+        }
+        input, textarea{
+            width: 45%;
+        }
+        textarea{
+            height: 100px
+        }
+    }
+    button{
+        margin: 0 41%;
+    }
+}
