@@ -9,13 +9,28 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use App\Entity\User;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Doctrine\ORM\EntityManagerInterface;
+
 
 #[AsCommand(
     name: 'app:create-user',
     description: 'Add a short description for your command',
 )]
+
 class CreateUserCommand extends Command
 {
+    protected static $defaultName = 'app:user';
+    private EntityManagerInterface $entityManager;
+    private UserPasswordHasherInterface $passwordHasher;
+
+    public function __construct(EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasherInterface){
+        $this->entityManager = $em;
+        $this->passwordHasher = $passwordHasherInterface;
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $this
@@ -25,6 +40,7 @@ class CreateUserCommand extends Command
         ;
     }
 
+    // custom command function for creating an user on the website, with arg. for email and password
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -33,9 +49,18 @@ class CreateUserCommand extends Command
 
         if ($arg_email || $arg_password) {
             $io->note(sprintf('You used the email adress: %s', $arg_email));
-        }
+            $io->note(sprintf('You used the password: %s', $arg_password));
 
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+            $user = New User();
+            
+            $user->setEmail($arg_email);
+            $user->setPassword($this->passwordHasher->hashPassword($user, 'test'));
+        
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            $io->success('User has been created!');
+        }
 
         return Command::SUCCESS;
     }

@@ -24,13 +24,16 @@ class IndexController extends AbstractController
         return $this->render('index/huren.html.twig');
     }
 
+    // function for importing new barbecue's into the website
     #[Route('/admin/import/barbecue', name: 'import_bqq')]
     public function import_bqq(Request $request, SluggerInterface $slugge): Response
     {
+        // check if the current user is logged in as an admin
         if (!$this->denyAccessUnlessGranted('ROLE_ADMIN')) {
             return $this->redirectToRoute('index');
         }
 
+        // getting the entity object and handling the form request
         $barbecue = new Barbecue();
         $form = $this->createForm(BarbecueImportType::class, $barbecue);
         $form->handleRequest($request);
@@ -67,6 +70,7 @@ class IndexController extends AbstractController
             return $this->redirectToRoute('index');
         }
 
+        // return the form object ad load the template
         return $this->renderForm('forms/barbecue_import.html.twig', [
             'form' => $form,
         ]);
