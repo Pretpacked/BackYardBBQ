@@ -25,6 +25,7 @@ class CreateUserCommand extends Command
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordHasher;
 
+    // getting the interfaces inside the class, autowiring!
     public function __construct(EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasherInterface){
         $this->entityManager = $em;
         $this->passwordHasher = $passwordHasherInterface;
@@ -36,7 +37,6 @@ class CreateUserCommand extends Command
         $this
             ->addArgument('email', InputArgument::REQUIRED, 'email used for the new account!')
             ->addArgument('password', InputArgument::REQUIRED, 'password used for the new account!')
-
         ;
     }
 
@@ -47,10 +47,12 @@ class CreateUserCommand extends Command
         $arg_email = $input->getArgument('email');
         $arg_password = $input->getArgument('password');
 
+        // check if arg. are filled
         if ($arg_email || $arg_password) {
             $io->note(sprintf('You used the email adress: %s', $arg_email));
             $io->note(sprintf('You used the password: %s', $arg_password));
-
+            
+            // TODO: check if email is already used
             $user = New User();
             
             $user->setEmail($arg_email);
