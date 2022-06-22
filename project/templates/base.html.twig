@@ -27,12 +27,21 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/huren">Huren</a>
                 </li>
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders">orders</a>
+                    </li>
+                {% endif %}
                 </ul>
             </div>
             <form class="reset-margins form-inline">
                 <ul class="navbar-nav">
                     <li class="nav-item active">
+                     {% if app.user %}
+                        <a class="nav-link" href="/logout">logout</a>
+                    {% else %}
                         <a class="nav-link" href="/login">Inloggen</a>
+                    {% endif %}
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/contact">Contact</a>

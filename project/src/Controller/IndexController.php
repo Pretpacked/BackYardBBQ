@@ -9,6 +9,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Barbecue;
 use App\Form\BarbecueImportType;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 class IndexController extends AbstractController
@@ -16,8 +18,30 @@ class IndexController extends AbstractController
     #[Route('/', name: 'index')]
     public function index(): Response
     {
+        
+
         return $this->render('index/index.html.twig');
     }
+
+    #[Route('/api/orders', name: 'apiOrders')]
+    public function apiOrders(ManagerRegistry $doctrine): Response
+    {
+        return new JsonResponse(['data' => $this->container->get('serializer')->serialize(
+            $doctrine->getRepository(Barbecue::class)->findAll(), 'json')]);
+    }
+
+    #[Route('/api/remove/{id}', name: 'apiRemoveBarbecue')]
+    public function apiRemoveBarbecue(ManagerRegistry $doctrine)
+    {
+
+    }
+
+    #[Route('/orders', name: 'orders')]
+    public function orders(): Response
+    {
+        return $this->render('index/orders.html.twig');
+    }
+
     #[Route('/huren', name: 'huren')]
     public function huren(): Response
     {
@@ -26,17 +50,13 @@ class IndexController extends AbstractController
 
     // function for importing new barbecue's into the website
     #[Route('/admin/import/barbecue', name: 'import_bqq')]
-    public function import_bqq(Request $request, SluggerInterface $slugge): Response
+    public function import_bqq(Request $request, SluggerInterface $slugger, ManagerRegistry $doctrine): Response
     {
-        // check if the current user is logged in as an admin
-        if (!$this->denyAccessUnlessGranted('ROLE_ADMIN')) {
-            return $this->redirectToRoute('index');
-        }
-
         // getting the entity object and handling the form request
         $barbecue = new Barbecue();
         $form = $this->createForm(BarbecueImportType::class, $barbecue);
         $form->handleRequest($request);
+        $entityManager = $doctrine->getManager();
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $brochureFile */
@@ -53,7 +73,7 @@ class IndexController extends AbstractController
                 // Move the file to the directory where brochures are stored
                 try {
                     $brochureFile->move(
-                        $this->getParameter('image'),
+                        $this->getParameter('images'),
                         $newFilename
                     );
                 } catch (FileException $e) {
@@ -62,10 +82,16 @@ class IndexController extends AbstractController
 
                 // updates the 'brochureFilename' property to store the PDF file name
                 // instead of its contents
-                $barbecue->setBrochureFilename($newFilename);
+                $barbecue->setImage($newFilename);
             }
 
-            // ... persist the $product variable or any other work
+            $barbecue->setName($form->get('name')->getData());
+            $barbecue->setBarbecuePrice($form->get('barbecue_price')->getData());
+            $barbecue->setDescription($form->get('description')->getData());
+
+            $entityManager->persist($barbecue);
+            $entityManager->flush();
+
 
             return $this->redirectToRoute('index');
         }
