@@ -9,6 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 
 class BarbecueImportType extends AbstractType
@@ -39,6 +40,14 @@ class BarbecueImportType extends AbstractType
                 ],
             ])
             ->add('name')
+            ->add('type', ChoiceType::class, [
+                'required' => true,
+                'choices'  => [
+                    'De Big Green Egg' => 'De Big Green Egg',
+                    'Kamado Joe' => 'Kamado Joe',
+                    'The Bastard BBQ' => 'The Bastard BBQ',
+                ],
+            ])
             ->add('description')
             ->add('barbecue_price')
         ;
