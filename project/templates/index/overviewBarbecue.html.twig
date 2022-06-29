@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% endblock %}
+
+{% block body %}
+
+{{ dump(data[0]) }}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12"
+         id="overview_barbecue_container">
+            <div class="row">
+                <div class="col-6">
+                    <img src="/uploads/{{ data[0].image }}"></div>
+                <div class="col-6">
+                <div class="overview_title">{{ data[0].name }}</div>
+                <div class="overview_price">€ <span>{{ data[0].barbecuePrice }}</span></div>
+                <div class="overview_type">Type: <span>{{ data[0].type }}</span></div>
+                <div class="overview_description">{{ data[0].description }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -36,6 +36,13 @@ class IndexController extends AbstractController
 
     }
 
+    #[Route('/bqq/overview/{id}', name: 'showBarbecueOverview')]
+    public function showBarbecueOverview(ManagerRegistry $doctrine, $id)
+    {
+
+        return $this->render('index/overviewBarbecue.html.twig', array('data'=> $doctrine->getRepository(Barbecue::class)->findBy(array('id' => (int)$id))));
+    }
+
     #[Route('/orders', name: 'orders')]
     public function orders(): Response
     {
