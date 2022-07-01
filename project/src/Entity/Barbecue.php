@@ -28,15 +28,16 @@ class Barbecue
     #[ORM\Column(type: 'integer')]
     private $barbecue_price;
 
-    #[ORM\ManyToMany(targetEntity: Customer::class, mappedBy: 'barbecue')]
-    private $customers;
-
     #[ORM\Column(type: 'string', length: 255)]
     private $type;
+
+    #[ORM\OneToMany(mappedBy: 'barbecue', targetEntity: Order::class)]
+    private $orders;
 
     public function __construct()
     {
         $this->customers = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     public function getImage()
@@ -92,33 +93,6 @@ class Barbecue
         return $this;
     }
 
-    /**
-     * @return Collection<int, Customer>
-     */
-    public function getCustomers(): Collection
-    {
-        return $this->customers;
-    }
-
-    public function addCustomer(Customer $customer): self
-    {
-        if (!$this->customers->contains($customer)) {
-            $this->customers[] = $customer;
-            $customer->addBarbecue($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCustomer(Customer $customer): self
-    {
-        if ($this->customers->removeElement($customer)) {
-            $customer->removeBarbecue($this);
-        }
-
-        return $this;
-    }
-
     public function getType(): ?string
     {
         return $this->type;
@@ -127,6 +101,36 @@ class Barbecue
     public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Order>
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Order $order): self
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders[] = $order;
+            $order->setBarbecue($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): self
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getBarbecue() === $this) {
+                $order->setBarbecue(null);
+            }
+        }
 
         return $this;
     }

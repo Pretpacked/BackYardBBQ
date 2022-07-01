@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% endblock %}
+
+{% block body %}
+
+{{ dump(data) }}
+
+<div class="container" id="container_add_accessoires">
+    <div class="row">
+    {% for element in data %}
+        <div class="col-4">
+                {{ element.name }}
+        </div>
+    {% endfor %}
+        <div class="col-4">
+                Niks.
+        </div>
+    </div>
+</div>
+{% endblock %}

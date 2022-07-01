@@ -24,31 +24,12 @@ class Customer
     #[ORM\Column(type: 'integer')]
     private $phone_number;
 
-    #[ORM\ManyToMany(targetEntity: Barbecue::class, inversedBy: 'customers')]
-    private $barbecue;
-
-    #[ORM\Column(type: 'date')]
-    private $orderd_date;
-
-    #[ORM\Column(type: 'date')]
-    private $start_date;
-
-    #[ORM\Column(type: 'date')]
-    private $end_date;
-
-    #[ORM\Column(type: 'integer')]
-    private $price_total;
-
-    #[ORM\Column(type: 'text')]
-    private $remark;
-
-    #[ORM\ManyToMany(targetEntity: Accessoire::class, mappedBy: 'customer')]
-    private $accessoires;
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Order::class)]
+    private $orders;
 
     public function __construct()
     {
-        $this->barbecue = new ArrayCollection();
-        $this->accessoires = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -93,111 +74,30 @@ class Customer
     }
 
     /**
-     * @return Collection<int, barbecue>
+     * @return Collection<int, Order>
      */
-    public function getBarbecue(): Collection
+    public function getOrders(): Collection
     {
-        return $this->barbecue;
+        return $this->orders;
     }
 
-    public function addBarbecue(barbecue $barbecue): self
+    public function addOrder(Order $order): self
     {
-        if (!$this->barbecue->contains($barbecue)) {
-            $this->barbecue[] = $barbecue;
+        if (!$this->orders->contains($order)) {
+            $this->orders[] = $order;
+            $order->setCustomer($this);
         }
 
         return $this;
     }
 
-    public function removeBarbecue(barbecue $barbecue): self
+    public function removeOrder(Order $order): self
     {
-        $this->barbecue->removeElement($barbecue);
-
-        return $this;
-    }
-
-    public function getOrderdDate(): ?\DateTimeInterface
-    {
-        return $this->orderd_date;
-    }
-
-    public function setOrderdDate(\DateTimeInterface $orderd_date): self
-    {
-        $this->orderd_date = $orderd_date;
-
-        return $this;
-    }
-
-    public function getStartDate(): ?\DateTimeInterface
-    {
-        return $this->start_date;
-    }
-
-    public function setStartDate(\DateTimeInterface $start_date): self
-    {
-        $this->start_date = $start_date;
-
-        return $this;
-    }
-
-    public function getEndDate(): ?\DateTimeInterface
-    {
-        return $this->end_date;
-    }
-
-    public function setEndDate(\DateTimeInterface $end_date): self
-    {
-        $this->end_date = $end_date;
-
-        return $this;
-    }
-
-    public function getPrice_total(): ?int
-    {
-        return $this->price_total;
-    }
-
-    public function setPrice_total(int $price_total): self
-    {
-        $this->price_total = $price_total;
-
-        return $this;
-    }
-
-    public function getRemark(): ?string
-    {
-        return $this->remark;
-    }
-
-    public function setRemark(string $remark): self
-    {
-        $this->remark = $remark;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Accessoire>
-     */
-    public function getAccessoires(): Collection
-    {
-        return $this->accessoires;
-    }
-
-    public function addAccessoire(Accessoire $accessoire): self
-    {
-        if (!$this->accessoires->contains($accessoire)) {
-            $this->accessoires[] = $accessoire;
-            $accessoire->addCustomer($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAccessoire(Accessoire $accessoire): self
-    {
-        if ($this->accessoires->removeElement($accessoire)) {
-            $accessoire->removeCustomer($this);
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getCustomer() === $this) {
+                $order->setCustomer(null);
+            }
         }
 
         return $this;

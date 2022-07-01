@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Barbecue;
+use App\Entity\Accessoire;
 use App\Form\BarbecueImportType;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -34,15 +35,7 @@ class IndexController extends AbstractController
     #[Route('/api/remove/{id}', name: 'apiRemoveBarbecue')]
     public function apiRemoveBarbecue(ManagerRegistry $doctrine)
     {
-        // check if session isset if not create it
-        if(isset($session)){
-            $session = new Session();
-            $session->start();
 
-            $session->set('cart', array());
-        
-            return $this->render('index/add_to_cart.html.twig');
-        }
 
 
     }
@@ -50,7 +43,15 @@ class IndexController extends AbstractController
     #[Route('/bqq/add/cart/{id}', name: 'addBqqCart')]
     public function addBqqCart(ManagerRegistry $doctrine)
     {
+        // check if session isset if not create it
+        if(isset($session)){
+            $session = new Session();
+            $session->start();
 
+            $session->set('cart', array());
+        
+        }
+        return $this->render('index/add_accessoires.html.twig', array('data'=> $doctrine->getRepository(Accessoire::class)->findAll()));
     }
 
     #[Route('/bqq/overview/{id}', name: 'showBarbecueOverview')]

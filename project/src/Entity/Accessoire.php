@@ -21,12 +21,13 @@ class Accessoire
     #[ORM\Column(type: 'text')]
     private $description;
 
-    #[ORM\ManyToMany(targetEntity: Customer::class, inversedBy: 'accessoires')]
-    private $customer;
+    #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'accessoires')]
+    private $orders;
 
     public function __construct()
     {
         $this->customer = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
     
     public function getId(): ?int
@@ -59,25 +60,28 @@ class Accessoire
     }
 
     /**
-     * @return Collection<int, Customer>
+     * @return Collection<int, Order>
      */
-    public function getCustomer(): Collection
+    public function getOrders(): Collection
     {
-        return $this->customer;
+        return $this->orders;
     }
 
-    public function addCustomer(Customer $customer): self
+    public function addOrder(Order $order): self
     {
-        if (!$this->customer->contains($customer)) {
-            $this->customer[] = $customer;
+        if (!$this->orders->contains($order)) {
+            $this->orders[] = $order;
+            $order->addAccessoire($this);
         }
 
         return $this;
     }
 
-    public function removeCustomer(Customer $customer): self
+    public function removeOrder(Order $order): self
     {
-        $this->customer->removeElement($customer);
+        if ($this->orders->removeElement($order)) {
+            $order->removeAccessoire($this);
+        }
 
         return $this;
     }

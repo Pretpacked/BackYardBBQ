@@ -32,9 +32,7 @@ class CreateAccessoiresCommand extends Command
     }
 
     protected function configure(): void
-    {
-
-    }
+    {}
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -64,8 +62,6 @@ class CreateAccessoiresCommand extends Command
             $io->success('Just added! '. $this->pre_set_accoires[$i][0]);
         }
         $io->success('Succesfully submitted all accessoires!');
-
-
 
         return Command::SUCCESS;
     }
