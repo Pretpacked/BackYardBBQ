@@ -24,7 +24,7 @@ class Customer
     #[ORM\Column(type: 'integer')]
     private $phone_number;
 
-    #[ORM\ManyToMany(targetEntity: barbecue::class, inversedBy: 'customers')]
+    #[ORM\ManyToMany(targetEntity: Barbecue::class, inversedBy: 'customers')]
     private $barbecue;
 
     #[ORM\Column(type: 'date')]
@@ -42,9 +42,13 @@ class Customer
     #[ORM\Column(type: 'text')]
     private $remark;
 
+    #[ORM\ManyToMany(targetEntity: Accessoire::class, mappedBy: 'customer')]
+    private $accessoires;
+
     public function __construct()
     {
         $this->barbecue = new ArrayCollection();
+        $this->accessoires = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -168,6 +172,33 @@ class Customer
     public function setRemark(string $remark): self
     {
         $this->remark = $remark;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Accessoire>
+     */
+    public function getAccessoires(): Collection
+    {
+        return $this->accessoires;
+    }
+
+    public function addAccessoire(Accessoire $accessoire): self
+    {
+        if (!$this->accessoires->contains($accessoire)) {
+            $this->accessoires[] = $accessoire;
+            $accessoire->addCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccessoire(Accessoire $accessoire): self
+    {
+        if ($this->accessoires->removeElement($accessoire)) {
+            $accessoire->removeCustomer($this);
+        }
 
         return $this;
     }

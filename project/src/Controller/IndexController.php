@@ -11,6 +11,7 @@ use App\Form\BarbecueImportType;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 
 class IndexController extends AbstractController
@@ -32,6 +33,22 @@ class IndexController extends AbstractController
 
     #[Route('/api/remove/{id}', name: 'apiRemoveBarbecue')]
     public function apiRemoveBarbecue(ManagerRegistry $doctrine)
+    {
+        // check if session isset if not create it
+        if(isset($session)){
+            $session = new Session();
+            $session->start();
+
+            $session->set('cart', array());
+        
+            return $this->render('index/add_to_cart.html.twig');
+        }
+
+
+    }
+
+    #[Route('/bqq/add/cart/{id}', name: 'addBqqCart')]
+    public function addBqqCart(ManagerRegistry $doctrine)
     {
 
     }
