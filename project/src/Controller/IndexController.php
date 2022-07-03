@@ -108,22 +108,34 @@ class IndexController extends AbstractController
         ));
     }
 
+      // remove bbq from cart
+      #[Route('/cart/remove/{id}', name: 'cartRemove')]
+      public function cartRemove(Request $request, ManagerRegistry $doctrine, $id)
+      {
+        $session = $request->getSession();
+        $cart = $session->get('cart_bbq');
+
+        unset($cart[array_search($id, $cart)]);
+        array_values($cart);
+        $session->set('cart_bbq', $cart);
+        return new JsonResponse([]);
+      }
 
     // clearing cart.
     #[Route('/cart/clear', name: 'cartClear')]
-    public function cartClear(ManagerRegistry $doctrine)
+    public function cartClear(Request $request, ManagerRegistry $doctrine)
     {
-        $session = new Session();
+        $session = $request->getSession();
         $session->clear();
 
-        return $this->redirect('huren');
+        return $this->redirect('/huren');
     }
 
     // function for showing the cart.
     #[Route('/cart/get', name: 'showNumberInCart')]
-    public function showNumberInCart(ManagerRegistry $doctrine)
+    public function showNumberInCart(Request $request, ManagerRegistry $doctrine)
     {
-        $session = new Session();
+        $session = $request->getSession();
 
         // check if there is anything in cart other wish send null.
         if(isset($session) AND $session->has('cart_bbq')){

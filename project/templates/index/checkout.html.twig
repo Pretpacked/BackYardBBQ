@@ -34,7 +34,7 @@
                     <th><img src="/uploads/{{ elem.image }}"></th>
                     <th>{{ elem.name}}</th>
                     <th class="checkout-price">€ {{ elem.barbecuePrice }}</th>
-                    <a href="/cart/remove{{ elem.id }}"><th class="checkout-remove">x</th></a>
+                    <th class="cardRemove checkout-remove" id="{{elem.id}}" data-id="a">x</th>
                 </tr>
                 {% endfor %}
                 <tr>
@@ -46,7 +46,7 @@
                 <tr>
                 <th class="unbold">total</th>
                 <th></th>
-                <th class="checkout-price unbold">€ {{ total }}</th>
+                <th class="checkout-price unbold" att>€ {{ total }}</th>
                 <th></th>
                 </tr>
                 </tbody>

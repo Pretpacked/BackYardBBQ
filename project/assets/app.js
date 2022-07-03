@@ -60,4 +60,11 @@ $(document).ready(function() {
                 '<div class="barbecue-title">'+element['name']+'</div></a>';
         }
     });
+    $('.cardRemove').click(function(){
+        console.log($(this).attr('id'))
+        $.post('http://localhost:8000/cart/remove/'+$(this).attr('id')+'', function() {
+            location.reload();
+        })
+    })
+
 });
