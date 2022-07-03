@@ -13,18 +13,21 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Session\Session;
+use App\Entity\Customer;
+use App\Form\CheckoutType;
+use App\Entity\Order;
 
 
 class IndexController extends AbstractController
 {
+    // showing the home page.
     #[Route('/', name: 'index')]
     public function index(): Response
     {
-        
-
         return $this->render('index/index.html.twig');
     }
 
+    // json get for the admin table, shows a table of all bbq in the system.
     #[Route('/api/orders', name: 'apiOrders')]
     public function apiOrders(ManagerRegistry $doctrine): Response
     {
@@ -35,26 +38,94 @@ class IndexController extends AbstractController
     #[Route('/api/remove/{id}', name: 'apiRemoveBarbecue')]
     public function apiRemoveBarbecue(ManagerRegistry $doctrine)
     {
-
-
-
+        // TODO
     }
 
+    // add accessoire to cart, redirect to checkout page.
+    #[Route('/cart/add/{id}', name: 'addAccessoire')]
+    public function addAccessoire(ManagerRegistry $doctrine, $id, Request $request)
+    {
+        $session = $request->getSession();
+
+        if(isset($session) AND $session->has('cart_accessoire')){
+            $session->set('cart_accessoire', $id);
+        }
+        return $this->redirect('/checkout');
+    }
+
+    #[Route('/checkout', name: 'checkout')]
+    public function checkout(ManagerRegistry $doctrine, Request $request)
+    {
+        $customer = new Customer;
+        $order = new Order;
+
+        $form = $this->createForm(CheckoutType::class, $customer);
+        $form->handleRequest($request);
+
+        $session = $request->getSession();
+        $cart = ($session->has('cart_bbq')) ? $session->get('cart_bbq') : NULL; 
+        $accessoire = ($session->has('cart_accessoire')) ? $session->get('cart_accessoire') : NULL; 
+        $total = 0;
+        $bbqOrder = array();
+    
+        if($cart == null){
+            return $this->render('index');
+        }
+   
+        if($form->isSubmitted() AND $form->isValid()){
+
+            $customer->setName($form->get('name')->getData());
+            $customer->setAdress($form->get('adress')->getData());
+            $customer->setPhoneNumber($form->get('phone_number')->getData());
+
+            $order->setCustomer($customer);
+            $order->setAccessoires($accessoire);
+            for ($i=0; $i < count($cart); $i++) { 
+                $order->setBarbecue($cart[$i]);
+            }
+            $order->setOrderdDate();
+            $order->setStartDate();
+            $order->setEndDate();
+            $order->setPriceTotal();
+            $order->setRemark();
+
+            $entityManager->persist($customer);
+            $entityManager->persist($order);
+            $entityManager->flush();
+        }
+
+        for ($i=0; $i < count($cart); $i++) { 
+            $bbq = $doctrine->getRepository(Barbecue::class)->find((string)$cart[$i]);
+            $total += $bbq->getBarbecuePrice();
+
+            array_push($bbqOrder, $bbq);
+        };
+        return $this->renderForm('index/checkout.html.twig', array(
+            'form' => $form, 
+            'data' => $bbqOrder,
+            'btw' => ($total / 100 * 21),
+            'total' => ($total + ($total / 100 * 21))
+        ));
+    }
+
+
+    // clearing cart.
     #[Route('/cart/clear', name: 'cartClear')]
     public function cartClear(ManagerRegistry $doctrine)
     {
         $session = new Session();
-
         $session->clear();
 
-        return $this->render('index/huren.html.twig');
+        return $this->redirect('huren');
     }
 
+    // function for showing the cart.
     #[Route('/cart/get', name: 'showNumberInCart')]
     public function showNumberInCart(ManagerRegistry $doctrine)
     {
         $session = new Session();
 
+        // check if there is anything in cart other wish send null.
         if(isset($session) AND $session->has('cart_bbq')){
             return new JsonResponse(['data' => $session->get('cart_bbq')]);
         }else{
@@ -62,44 +133,50 @@ class IndexController extends AbstractController
         }
     }
 
+    // function for adding bbq to the cart
     #[Route('/bqq/add/cart/{id}', name: 'addBqqCart')]
-    public function addBqqCart(ManagerRegistry $doctrine, $id)
+    public function addBqqCart(ManagerRegistry $doctrine, Request $request, $id)
     {
-        $session = new Session();
+        $session = $request->getSession();
 
-        // check if session isset if not create it
+        // check if session isset if not create it.
         if(!$session->has('cart_bbq')){
             $session->start();
 
             $session->set('cart_bbq', array($id));
         
         }else{
-
             $array = $session->get('cart_bbq');
 
-            // check if the inputted bbq isn't duplicate 
+            // check if the inputted bbq isn't duplicate.
             if(end($array) !== $id){
                 array_push($array, $id);
                 $session->set('cart_bbq', $array);
             }
         }
-        dd($session->get('cart_bbq'));
+        // dd($session->has('cart_accessoire'));
+        if($session->has('cart_accessoire')){
+            return $this->redirect('checkout');
+        }
+
         return $this->render('index/add_accessoires.html.twig', array('data'=> $doctrine->getRepository(Accessoire::class)->findAll()));
     }
 
+    // showing bbq overview page.
     #[Route('/bqq/overview/{id}', name: 'showBarbecueOverview')]
     public function showBarbecueOverview(ManagerRegistry $doctrine, $id)
     {
-
         return $this->render('index/overviewBarbecue.html.twig', array('data'=> $doctrine->getRepository(Barbecue::class)->findBy(array('id' => (int)$id))));
     }
 
+    // showing admin order page.
     #[Route('/orders', name: 'orders')]
     public function orders(): Response
     {
         return $this->render('index/orders.html.twig');
     }
 
+    // show bbq select page.
     #[Route('/huren', name: 'huren')]
     public function huren(): Response
     {
@@ -120,11 +197,10 @@ class IndexController extends AbstractController
             /** @var UploadedFile $brochureFile */
             $brochureFile = $form->get('image')->getData();
 
-            // this condition is needed because the 'brochure' field is not required
-            // so the PDF file must be processed only when a file is uploaded
+            // check if there is a file uploaded
             if ($brochureFile) {
                 $originalFilename = pathinfo($brochureFile->getClientOriginalName(), PATHINFO_FILENAME);
-                // this is needed to safely include the file name as part of the URL
+                // making the file name url safe
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$brochureFile->guessExtension();
 
@@ -134,9 +210,7 @@ class IndexController extends AbstractController
                         $this->getParameter('images'),
                         $newFilename
                     );
-                } catch (FileException $e) {
-                    // ... handle exception if something happens during file upload
-                }
+                } catch (FileException $e) {}
 
                 // updates the 'brochureFilename' property to store the PDF file name
                 // instead of its contents

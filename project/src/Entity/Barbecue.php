@@ -31,7 +31,7 @@ class Barbecue
     #[ORM\Column(type: 'string', length: 255)]
     private $type;
 
-    #[ORM\OneToMany(mappedBy: 'barbecue', targetEntity: Order::class)]
+    #[ORM\ManyToMany(mappedBy: 'barbecue', targetEntity: Order::class)]
     private $orders;
 
     public function __construct()

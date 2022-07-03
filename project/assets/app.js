@@ -19,9 +19,9 @@ import './bootstrap';
 $(document).ready(function() {
 
     // function get all items in cart
-    $.get("cart/get", function( i ) {
+    $.get("http://localhost:8000/cart/get", function( i ) {
         if(i['data'] !== null){
-            document.getElementById('cart-container').innerHTML = '<a id="cart" href="/cart/clear">'+
+            document.getElementById('cart-container').innerHTML = '<a id="cart" href="http://localhost:8000/cart/clear">'+
             '<i class="fa-solid fa-cart-shopping"></i>'+
             '<div id="cart_number"></div></a>'
             document.getElementById('cart_number').innerHTML = i['data'].length;
@@ -30,7 +30,7 @@ $(document).ready(function() {
     });
 
     // Function for loading the orders page table
-    $.get( "api/orders", function( data ) {
+    $.get( "http://localhost:8000/api/orders", function( data ) {
         data = JSON.parse(data['data']);
         // Loop through the data object recieved to generate the table
         for (let i = 0; i < data.length; i++) {
@@ -47,14 +47,14 @@ $(document).ready(function() {
     });
 
       // Function showing the rent page barbecue for customers to order from.
-      $.get( "api/orders", function( data ) {
+      $.get( "http://localhost:8000/api/orders", function( data ) {
         data = JSON.parse(data['data']);
         const table = document.getElementById('renting_table_custom')
         console.log(data)
         document.querySelector('#loader').style.display = 'none';
         for (let i = 0; i < data.length; i++) {
             const element = data[i];
-            table.innerHTML += '<a class="rent-barbecue-container" href="bqq/overview/'+ element['id'] +'">'+
+            table.innerHTML += '<a class="rent-barbecue-container" href="http://localhost:8000/bqq/overview/'+ element['id'] +'">'+
             '<div >'+
                 '<img src="/uploads/'+element['image']+'"></div>'+
                 '<div class="barbecue-title">'+element['name']+'</div></a>';

@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% endblock %}
+
+{% block body %}
+
+{{ dump(data)}}
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            {{ form_start(form) }}
+            {{ form_row(form.name) }}
+            {{ form_row(form.adress) }}
+            {{ form_row(form.phone_number) }}
+
+            <button class="btn btn-lg btn-primary" type="submit">Upload barbecue</button>
+
+        {{ form_end(form) }}
+        </div>
+        <div class="col-6">
+            <table class="table table-hover" id="checkout-container">
+                <thead>
+                    <tr>
+                    <th scope="col">Image</th>
+                    <th scope="col">Name</th>
+                    <th scope="col" class="checkout-price">Price</th>
+
+                    <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for elem in data %}
+                <tr>
+                    <th><img src="/uploads/{{ elem.image }}"></th>
+                    <th>{{ elem.name}}</th>
+                    <th class="checkout-price">€ {{ elem.barbecuePrice }}</th>
+                    <a href="/cart/remove{{ elem.id }}"><th class="checkout-remove">x</th></a>
+                </tr>
+                {% endfor %}
+                <tr>
+                <th class="unbold">btw</th>
+                <th></th>
+                <th class="checkout-price unbold">€ {{ btw }}</th>
+                <th></th>
+                </tr>
+                <tr>
+                <th class="unbold">total</th>
+                <th></th>
+                <th class="checkout-price unbold">€ {{ total }}</th>
+                <th></th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

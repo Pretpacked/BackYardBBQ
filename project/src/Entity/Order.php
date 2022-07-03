@@ -23,7 +23,7 @@ class Order
     #[ORM\ManyToMany(targetEntity: Accessoire::class, inversedBy: 'orders')]
     private $accessoires;
 
-    #[ORM\ManyToOne(targetEntity: Barbecue::class, inversedBy: 'orders')]
+    #[ORM\ManyToMany(targetEntity: Barbecue::class, inversedBy: 'orders')]
     #[ORM\JoinColumn(nullable: false)]
     private $barbecue;
 

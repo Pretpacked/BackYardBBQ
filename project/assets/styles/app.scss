@@ -229,3 +229,20 @@ form{
     cursor: pointer;
   }
 }
+#checkout-container{
+  .checkout-price{
+    text-align: right;
+  }
+  .checkout-remove{
+    column-width:0;
+  }
+  img{
+    width: 50px;
+  }
+  .unbold{
+    font-weight:100
+  }
+  a{
+    cursor: pointer;
+  }
+}

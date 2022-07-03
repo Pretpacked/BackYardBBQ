@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-12">Kies accessoires bij je barbecue:</div>
     {% for element in data %}
-        <div class="col-4"> <a href="">
+        <div class="col-4"> <a href="/cart/add/{{ element.id }}">
                 <div class="accessoire_name">{{ element.name }}</div>
                 <div class="accessoire_description">{{ element.description }}</div>
         </a></div>
