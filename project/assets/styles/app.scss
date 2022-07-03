@@ -21,11 +21,12 @@ form{
     margin-top: 5%;
     div{
         margin-bottom: 3%;
+        display: flex;
         label{
             text-align: center;
             width: 50%;
         }
-        input, textarea{
+        input, textarea, #checkout_start_date{
             width: 45%;
         }
         textarea{
@@ -35,8 +36,17 @@ form{
     button{
         margin: 0 41%;
     }
+    #checkout_start_date, #checkout_end_date{
+      display: flex;
+      justify-content: space-between;
+      width: 45%;
+    }
 }
 
+.submit-checkout-container{
+  display: flex;
+    justify-content: center;
+}
 
 #order-view{
     margin: 3% 5%;

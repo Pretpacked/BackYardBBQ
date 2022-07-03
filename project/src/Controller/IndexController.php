@@ -46,10 +46,7 @@ class IndexController extends AbstractController
     public function addAccessoire(ManagerRegistry $doctrine, $id, Request $request)
     {
         $session = $request->getSession();
-
-        if(isset($session) AND $session->has('cart_accessoire')){
-            $session->set('cart_accessoire', $id);
-        }
+        $session->set('cart_accessoire', $id);
         return $this->redirect('/checkout');
     }
 
@@ -62,15 +59,13 @@ class IndexController extends AbstractController
         $form = $this->createForm(CheckoutType::class, $customer);
         $form->handleRequest($request);
 
+        // get session and check if cart/accessoire variable are filled
         $session = $request->getSession();
         $cart = ($session->has('cart_bbq')) ? $session->get('cart_bbq') : NULL; 
         $accessoire = ($session->has('cart_accessoire')) ? $session->get('cart_accessoire') : NULL; 
+        $accessoire = $doctrine->getRepository(Accessoire::class)->find((string)$accessoire);
         $total = 0;
         $bbqOrder = array();
-    
-        if($cart == null){
-            return $this->render('index');
-        }
    
         if($form->isSubmitted() AND $form->isValid()){
 
@@ -100,11 +95,17 @@ class IndexController extends AbstractController
 
             array_push($bbqOrder, $bbq);
         };
+
+        if(empty($bbqOrder)){
+            
+            return $this->redirect('/');
+        }
         return $this->renderForm('index/checkout.html.twig', array(
             'form' => $form, 
             'data' => $bbqOrder,
+            'accessoire' => $accessoire,
             'btw' => ($total / 100 * 21),
-            'total' => ($total + ($total / 100 * 21))
+            'total' => ($total + ($total / 100 * 21) + $accessoire->getPrice())
         ));
     }
 
@@ -114,6 +115,11 @@ class IndexController extends AbstractController
       {
         $session = $request->getSession();
         $cart = $session->get('cart_bbq');
+
+        if(count($cart) === 0){
+            $session->clear();
+            return new JsonResponse([]);
+        }
 
         unset($cart[array_search($id, $cart)]);
         array_values($cart);

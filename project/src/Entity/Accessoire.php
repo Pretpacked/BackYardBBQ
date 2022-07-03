@@ -21,6 +21,9 @@ class Accessoire
     #[ORM\Column(type: 'text')]
     private $description;
 
+    #[ORM\Column(type: 'integer')]
+    private $price;
+
     #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'accessoires')]
     private $orders;
 
@@ -33,6 +36,18 @@ class Accessoire
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(int $price): self
+    {
+        $this->price = $price;
+
+        return $this;
     }
 
     public function getName(): ?string

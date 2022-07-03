@@ -38,8 +38,8 @@ class CreateAccessoiresCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $pre_set_accessoires = array(
-            array('houtskool', 'Houtskool (Latijn: carbo), ofwel verkoling van hout, ontleent zijn betekenis aan de ontleding (pyrolyse) van hout. Het gaat om een bewerking waarbij hout wordt verhit op een zodanige wijze dat slechts een beperkte hoeveelheid zuurstof kan toetreden. Het grootste deel van het hout verbrandt dan niet en de vluchtige bestanddelen verdampen. In tegenstelling tot hout, dat uit complexe moleculen bestaat, is houtskool nagenoeg zuiver koolstof. Houtskool komt chemisch dicht bij steenkool of steenkoolcokes of turfcokes.'),
-            array('briketten', 'De Cocones hexagonal kokos briketten zijn door diverse barbecue kenners en professionals geprezen om de lange en constante warmte die ze afgeven. Een unieke zeshoek vorm zorgt voor een snelle warmte overdracht bij deze cocos briketten. De grote van een enkele briket is 50x50x58mm.')
+            array('houtskool', 'Houtskool (Latijn: carbo), ofwel verkoling van hout, ontleent zijn betekenis aan de ontleding (pyrolyse) van hout. Het gaat om een bewerking waarbij hout wordt verhit op een zodanige wijze dat slechts een beperkte hoeveelheid zuurstof kan toetreden. Het grootste deel van het hout verbrandt dan niet en de vluchtige bestanddelen verdampen. In tegenstelling tot hout, dat uit complexe moleculen bestaat, is houtskool nagenoeg zuiver koolstof. Houtskool komt chemisch dicht bij steenkool of steenkoolcokes of turfcokes.', 17),
+            array('briketten', 'De Cocones hexagonal kokos briketten zijn door diverse barbecue kenners en professionals geprezen om de lange en constante warmte die ze afgeven. Een unieke zeshoek vorm zorgt voor een snelle warmte overdracht bij deze cocos briketten. De grote van een enkele briket is 50x50x58mm.', 15)
         );
 
         for ($i=0; $i < count($pre_set_accessoires); $i++) {
@@ -57,7 +57,8 @@ class CreateAccessoiresCommand extends Command
 
                 $accessoires->setName($element[0]);
                 $accessoires->setDescription($element[1]);
-    
+                $accessoires->setPrice($element[2]);
+                
                 $this->entityManager->persist($accessoires);
                 $this->entityManager->flush();
              

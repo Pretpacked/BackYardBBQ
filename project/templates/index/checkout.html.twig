@@ -4,7 +4,6 @@
 
 {% block body %}
 
-{{ dump(data)}}
 <div class="container">
     <div class="row">
         <div class="col-6">
@@ -12,8 +11,11 @@
             {{ form_row(form.name) }}
             {{ form_row(form.adress) }}
             {{ form_row(form.phone_number) }}
+            {{ form_row(form.start_date) }}
+            {{ form_row(form.end_date) }}
+            {{ form_row(form.remark) }}
 
-            <button class="btn btn-lg btn-primary" type="submit">Upload barbecue</button>
+
 
         {{ form_end(form) }}
         </div>
@@ -37,6 +39,12 @@
                     <th class="cardRemove checkout-remove" id="{{elem.id}}" data-id="a">x</th>
                 </tr>
                 {% endfor %}
+                <tr style='border-bottom: 2px solid black;'>
+                <th class="unbold">extra</th>
+                <th>{{ accessoire.name }}</th>
+                <th class="checkout-price unbold">€ {{ accessoire.price }}</th>
+                <th></th>
+                </tr>
                 <tr>
                 <th class="unbold">btw</th>
                 <th></th>
@@ -51,6 +59,9 @@
                 </tr>
                 </tbody>
             </table>
+        </div>
+        <div class="submit-checkout-container col-12">
+            <button class="btn btn-lg btn-primary" type="submit">Upload barbecue</button>
         </div>
     </div>
 </div>
