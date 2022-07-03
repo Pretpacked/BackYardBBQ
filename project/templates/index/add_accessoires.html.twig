@@ -3,19 +3,18 @@
 {% block title %}{% endblock %}
 
 {% block body %}
-
-{{ dump(data) }}
-
 <div class="container" id="container_add_accessoires">
     <div class="row">
+        <div class="col-12">Kies accessoires bij je barbecue:</div>
     {% for element in data %}
-        <div class="col-4">
-                {{ element.name }}
-        </div>
+        <div class="col-4"> <a href="">
+                <div class="accessoire_name">{{ element.name }}</div>
+                <div class="accessoire_description">{{ element.description }}</div>
+        </a></div>
     {% endfor %}
-        <div class="col-4">
+        <div class="col-4" id="accessoire_nothing"><a href="">
                 Niks.
-        </div>
+        </a></div>
     </div>
 </div>
 {% endblock %}

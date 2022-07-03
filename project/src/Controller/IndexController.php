@@ -40,17 +40,50 @@ class IndexController extends AbstractController
 
     }
 
-    #[Route('/bqq/add/cart/{id}', name: 'addBqqCart')]
-    public function addBqqCart(ManagerRegistry $doctrine)
+    #[Route('/cart/clear', name: 'cartClear')]
+    public function cartClear(ManagerRegistry $doctrine)
     {
+        $session = new Session();
+
+        $session->clear();
+
+        return $this->render('index/huren.html.twig');
+    }
+
+    #[Route('/cart/get', name: 'showNumberInCart')]
+    public function showNumberInCart(ManagerRegistry $doctrine)
+    {
+        $session = new Session();
+
+        if(isset($session) AND $session->has('cart_bbq')){
+            return new JsonResponse(['data' => $session->get('cart_bbq')]);
+        }else{
+            return new JsonResponse(['data' => null]);
+        }
+    }
+
+    #[Route('/bqq/add/cart/{id}', name: 'addBqqCart')]
+    public function addBqqCart(ManagerRegistry $doctrine, $id)
+    {
+        $session = new Session();
+
         // check if session isset if not create it
-        if(isset($session)){
-            $session = new Session();
+        if(!$session->has('cart_bbq')){
             $session->start();
 
-            $session->set('cart', array());
+            $session->set('cart_bbq', array($id));
         
+        }else{
+
+            $array = $session->get('cart_bbq');
+
+            // check if the inputted bbq isn't duplicate 
+            if(end($array) !== $id){
+                array_push($array, $id);
+                $session->set('cart_bbq', $array);
+            }
         }
+        dd($session->get('cart_bbq'));
         return $this->render('index/add_accessoires.html.twig', array('data'=> $doctrine->getRepository(Accessoire::class)->findAll()));
     }
 

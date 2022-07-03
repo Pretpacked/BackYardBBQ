@@ -137,7 +137,7 @@ form{
     margin: 0;
     font-weight: 200;
     opacity: .5;
-      font-family: sans-serif;
+    font-family: sans-serif;
     color: #fff;
   }
 // css loader end
@@ -176,5 +176,56 @@ form{
   }
 }
 #container_add_accessoires{
-  
+  a{
+    text-decoration: none;
+    color: black;
+  }
+  .row{
+    justify-content: center;
+  }
+  .col-4{
+    background:white;
+    padding: 2%;
+    margin: 2%;
+    &:hover{
+      transform: scale(1.1);
+      transition-duration: .35s;
+      cursor: pointer;
+    }
+  }
+
+  .accessoire_name{
+    text-align: center;
+    padding-bottom: 1%;
+    border-bottom: 1px solid;
+  }
+  #accessoire_nothing{
+    text-align: center;
+  }
+  .accessoire_description{
+    padding-top: 3%;
+  }
+  .col-12{
+    margin: 5% 0 1% 0;
+    text-align: center;
+    width: 100%;
+    font-weight: bold;
+    font-size: 40px;
+  }
+}
+#cart{
+  text-decoration: none;
+  color: black;
+  display: flex;
+  margin: 52% 0;
+
+  #cart_number{
+    padding-left: 20%;
+    font-size: 10px !important;
+  }
+  .fa-solid:hover{
+    transform: scale(1.1);
+    transition-duration: .35s;
+    cursor: pointer;
+  }
 }

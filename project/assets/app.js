@@ -17,6 +17,18 @@ import './styles/app.scss';
 import './bootstrap';
 
 $(document).ready(function() {
+
+    // function get all items in cart
+    $.get("cart/get", function( i ) {
+        if(i['data'] !== null){
+            document.getElementById('cart-container').innerHTML = '<a id="cart" href="/cart/clear">'+
+            '<i class="fa-solid fa-cart-shopping"></i>'+
+            '<div id="cart_number"></div></a>'
+            document.getElementById('cart_number').innerHTML = i['data'].length;
+
+        }
+    });
+
     // Function for loading the orders page table
     $.get( "api/orders", function( data ) {
         data = JSON.parse(data['data']);
