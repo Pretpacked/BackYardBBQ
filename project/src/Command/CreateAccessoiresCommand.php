@@ -43,25 +43,27 @@ class CreateAccessoiresCommand extends Command
         );
 
         for ($i=0; $i < count($pre_set_accessoires); $i++) {
-            if(count(
-                    $this->entityManager->getRepository(Accessoire::class)->findBy(
-                        array('name' => $pre_set_accessoires[$i][0]))) !== 0){
-                $io->success('Accessoire already found!!');
+            $element = $pre_set_accessoires[$i];
 
+            // dd($this->entityManager->getRepository(Accessoire::class)->findBy(
+            //     array('name' => $element[0])));
 
-                return Command::FAILURE;
+            if(count($this->entityManager->getRepository(Accessoire::class)->findBy(
+                array('name' => $element[0]))) !== 0){
+                $io->getErrorStyle()->error('Accessoire already found!!');
+                continue;
+            }else{
+                $accessoires = new Accessoire();
+
+                $accessoires->setName($element[0]);
+                $accessoires->setDescription($element[1]);
+    
+                $this->entityManager->persist($accessoires);
+                $this->entityManager->flush();
+             
+                $io->success('Added accessoire: ' . (string)$element[0]);
             }
-            $accessoires = new Accessoire();
-
-            $accessoires->setName($pre_set_accessoires[$i][0]);
-            $accessoires->setDescription($pre_set_accessoires[$i][1]);
-
-            $this->entityManager->persist($accessoires);
-            $this->entityManager->flush();
-            
-            $io->success('Just added! '. $this->pre_set_accessoires[$i][0]);
         }
-        $io->success('Succesfully submitted all accessoires!');
 
         return Command::SUCCESS;
     }
