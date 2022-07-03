@@ -59,7 +59,7 @@ class CreateAccessoiresCommand extends Command
             $this->entityManager->persist($accessoires);
             $this->entityManager->flush();
             
-            $io->success('Just added! '. $this->pre_set_accoires[$i][0]);
+            $io->success('Just added! '. $this->pre_set_accessoires[$i][0]);
         }
         $io->success('Succesfully submitted all accessoires!');
 
