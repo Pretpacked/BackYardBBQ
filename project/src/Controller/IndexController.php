@@ -103,11 +103,17 @@ class IndexController extends AbstractController
         // get session and check if cart/accessoire variable are filled
         $session = $request->getSession();
         $cart = ($session->has('cart_bbq')) ? $session->get('cart_bbq') : NULL; 
-        $accessoire = ($session->has('cart_accessoire')) ? $session->get('cart_accessoire') : NULL; 
-        $accessoire = $doctrine->getRepository(Accessoire::class)->find((string)$accessoire);
+        $accessoire = NULL;
+        $accessoirePrice = 0;
         $entityManager = $doctrine->getManager();
         $total = 0;
         $bbqOrder = array();
+
+        // check if cart has accessoire
+        if($session->has('cart_accessoire')){
+            $accessoire = $doctrine->getRepository(Accessoire::class)->find((int)$session->get('cart_accessoire'));
+            $accessoirePrice = $accessoire->getPrice();
+        }
 
         // check if cart is filled
         for ($i=0; $i < count($cart); $i++) {
@@ -136,7 +142,12 @@ class IndexController extends AbstractController
             $customer->setPhoneNumber($form->get('phone_number')->getData());
 
             $order->setCustomer($customer);
-            $order->addAccessoire($accessoire);
+
+            // check if accessoire is null
+            if($accessoire !== null){
+                $order->addAccessoire($accessoire);
+                $accessoirePrice = $accessoire->getPrice();
+            }
             
             // link the related bbq with the order
             for ($i=0; $i < count($cart); $i++) { 
@@ -148,7 +159,7 @@ class IndexController extends AbstractController
             $order->setOrderdDate(new \DateTime(date('Y-m-d H:i:s')));
             $order->setStartDate($form->get('start_date')->getData());
             $order->setEndDate($form->get('end_date')->getData());
-            $order->setPriceTotal(($total + ($total / 100 * 21) + $accessoire->getPrice()));
+            $order->setPriceTotal(($total + ($total / 100 * 21) +  $accessoirePrice));
             if($form->get('remark')->getData() !== NULL){
                 $order->setRemark($form->get('remark')->getData());
 
@@ -164,6 +175,7 @@ class IndexController extends AbstractController
             $session->clear();
             $session->set('order_done', $bbqOrder);
             $session->set('order_accessoire_done', $accessoire);
+            $session->set('accessoire_price', $accessoirePrice);
             $session->set('order_customer', array(
                 'name' => $form->get('name')->getData(),
                 'address' => $form->get('adress')->getData(),
@@ -188,7 +200,7 @@ class IndexController extends AbstractController
                 ),
                 'accessoire' =>  $session->get('order_accessoire_done'),
                 'btw' => ($total / 100 * 21),
-                'total' => ($total + ($total / 100 * 21) + $session->get('order_accessoire_done')->getPrice())
+                'total' => ($total + ($total / 100 * 21) +  $accessoirePrice)
             ));
         }
 
@@ -197,7 +209,7 @@ class IndexController extends AbstractController
             'data' => $bbqOrder,
             'accessoire' => $accessoire,
             'btw' => ($total / 100 * 21),
-            'total' => ($total + ($total / 100 * 21) + $accessoire->getPrice())
+            'total' => ($total + ($total / 100 * 21) + $accessoirePrice)
         ));
     }
 
@@ -220,7 +232,7 @@ class IndexController extends AbstractController
             ),
             'accessoire' =>  $session->get('order_accessoire_done'),
             'btw' => ($session->get('order_customer')['total'] / 100 * 21),
-            'total' => ($session->get('order_customer')['total'] + ($session->get('order_customer')['total'] / 100 * 21) + $session->get('order_accessoire_done')->getPrice())
+            'total' => ($session->get('order_customer')['total'] + ($session->get('order_customer')['total'] / 100 * 21) + $session->get('accessoire_price'))
         ));
     }
 

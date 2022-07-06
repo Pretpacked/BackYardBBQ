@@ -27,6 +27,7 @@ class Barbecue
     private $name;
 
     #[ORM\Column(type: 'text')]
+    #[Groups(['huren'])]
     private $description;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -34,9 +35,11 @@ class Barbecue
     private $type;
 
     #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'barbecues')]
+    #[Groups(['huren'])]
     private $orders;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(['huren'])]
     private $barbecue_price;
 
     public function __construct()

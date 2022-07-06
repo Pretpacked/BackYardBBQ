@@ -37,12 +37,14 @@
                     <th class="cardRemove checkout-remove" id="{{elem.id}}" data-id="a">x</th>
                 </tr>
                 {% endfor %}
+                {% if accessoire is not null %}
                 <tr style='border-bottom: 2px solid black;'>
                 <th class="unbold">extra</th>
                 <th>{{ accessoire.name }}</th>
                 <th class="checkout-price unbold">€ {{ accessoire.price }}</th>
                 <th></th>
                 </tr>
+                {% endif %}
                 <tr>
                 <th class="unbold">btw</th>
                 <th></th>

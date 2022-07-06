@@ -32,16 +32,26 @@ $(document).ready(function() {
     // Function for loading the orders page table
     $.get( "/api/orders", function( data ) {
         data = JSON.parse(data['data']);
+
+        // if(document.getElementById('ordersTable2'))
+
         // Loop through the data object recieved to generate the table
         for (let i = 0; i < data.length; i++) {
             const element = data[i];
-            var customer;
+            var customer = element['orders'];
             document.querySelector('#loader').style.display = 'none';
+            
+            if(customer.length !== 0){
+                document.getElementById('ordersTable2').style.display = 'display'
+
+                $('#ordersTable2 tr:last').after('<tr><th>'+(i+1)+'</th>'+
+                '<th>'+element['name']+'</th><th>'+element['orders']+'</th></tr>');
+            }
 
             //Add row to the table with the data from this barbecue
             $('#ordersTable tr:last').after('<tr><th>'+(i+1)+'</th>'+
             '<th>'+element['name']+'</th><th>'+element['description']+'</th>'+
-            '<th>€'+element['barbecuePrice']+'</th><th>'+element['image']+'</th><th>'+
+            '<th>€'+element['barbecue_price']+'</th><th>'+element['image']+'</th><th>'+
             '<a href="api/remove/'+element['id']+'"><button type="button" class="btn btn-warning">remove</button></a></th></tr>');
             }
     });
