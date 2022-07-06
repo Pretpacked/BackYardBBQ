@@ -6,6 +6,7 @@ use App\Repository\OrderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
@@ -14,6 +15,7 @@ class Order
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['huren'])]
     private $id;
 
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'orders')]
@@ -22,10 +24,6 @@ class Order
 
     #[ORM\ManyToMany(targetEntity: Accessoire::class, inversedBy: 'orders')]
     private $accessoires;
-
-    #[ORM\ManyToMany(targetEntity: Barbecue::class, inversedBy: 'orders')]
-    #[ORM\JoinColumn(nullable: false)]
-    private $barbecue;
 
     #[ORM\Column(type: 'date')]
     private $orderd_date;
@@ -36,15 +34,24 @@ class Order
     #[ORM\Column(type: 'date')]
     private $end_date;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'float')]
+    #[Groups(['huren'])]
     private $price_total;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: 'text', nullable:true)]
+    #[ORM\JoinColumn(nullable: true)]
     private $remark;
+
+    #[ORM\ManyToMany(targetEntity: Barbecue::class, inversedBy: 'orders')]
+    private $barbecues;
+
+    #[ORM\Column(type: 'boolean')]
+    private $delivery;
 
     public function __construct()
     {
         $this->accessoires = new ArrayCollection();
+        $this->barbecues = new ArrayCollection();
     }
 
     public function getOrderdDate(): ?\DateTimeInterface
@@ -83,12 +90,12 @@ class Order
         return $this;
     }
 
-    public function getPrice_total(): ?int
+    public function getPriceTotal(): ?float
     {
         return $this->price_total;
     }
 
-    public function setPrice_total(int $price_total): self
+    public function setPriceTotal(float $price_total): self
     {
         $this->price_total = $price_total;
 
@@ -148,14 +155,38 @@ class Order
         return $this;
     }
 
-    public function getBarbecue(): ?barbecue
+    /**
+     * @return Collection<int, Barbecue>
+     */
+    public function getBarbecues(): Collection
     {
-        return $this->barbecue;
+        return $this->barbecues;
     }
 
-    public function setBarbecue(?barbecue $barbecue): self
+    public function addBarbecue(Barbecue $barbecue): self
     {
-        $this->barbecue = $barbecue;
+        if (!$this->barbecues->contains($barbecue)) {
+            $this->barbecues[] = $barbecue;
+        }
+
+        return $this;
+    }
+
+    public function removeBarbecue(Barbecue $barbecue): self
+    {
+        $this->barbecues->removeElement($barbecue);
+
+        return $this;
+    }
+
+    public function isDelivery(): ?bool
+    {
+        return $this->delivery;
+    }
+
+    public function setDelivery(bool $delivery): self
+    {
+        $this->delivery = $delivery;
 
         return $this;
     }

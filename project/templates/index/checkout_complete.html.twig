@@ -1,24 +1,23 @@
 {% extends 'base.html.twig' %}
 
-{% block title %} - checkout{% endblock %}
+{% block title %} - checkout complete{% endblock %}
 
 {% block body %}
-
 <div class="container">
     <div class="row">
-        <div class="col-6">
-            {{ form_start(form) }}
-            {{ form_row(form.name) }}
-            {{ form_row(form.adress) }}
-            {{ form_row(form.phone_number) }}
-            {{ form_row(form.start_date) }}
-            {{ form_row(form.end_date) }}
-            {{ form_row(form.delivery) }}
-            {{ form_row(form.remark) }}
+        <div class="orderd-complete-container col-6">
+            <div>Naam:<span>{{ customer.name }}</span></div>
+            <div>Adres:<span>{{ customer.address }}</span></div>
+            <div>Telefoon nummer:<span>{{ customer.phone_number }}</span></div>
+            <div>Afleveren:<span>{{ customer.delivery }}</span></div>
+            <div>Besteld op:<span>{{ customer.orderd_date }}</span></div>
+            <div>huur begin:<span>{{ customer.start_date }}</span></div>
+            <div>huur eind:<span>{{ customer.end_date }}</span></div>
+
 
         </div>
-        <div class="col-6">
-            <table class="table table-hover" id="checkout-container">
+        <div class="col-6">           
+        <table class="table table-hover" id="checkout-container">
                 <thead>
                     <tr>
                     <th scope="col">Image</th>
@@ -34,7 +33,7 @@
                     <th><img src="/uploads/{{ elem.image }}"></th>
                     <th>{{ elem.name}}</th>
                     <th class="checkout-price">€ {{ elem.barbecuePrice }}</th>
-                    <th class="cardRemove checkout-remove" id="{{elem.id}}" data-id="a">x</th>
+                    <th></th>
                 </tr>
                 {% endfor %}
                 <tr style='border-bottom: 2px solid black;'>
@@ -57,16 +56,7 @@
                 </tr>
                 </tbody>
             </table>
-        </div>
-        <div class="submit-checkout-container col-12">
-        
-            <button class="btn btn-lg btn-primary" type="submit">Upload barbecue</button>
-
-
-        {{ form_end(form) }}
-            <a href="/cart/clear" style="margin: 18px;">winkelwagentje opschonen</a>
-
-        </div>
+        </div></div>
     </div>
 </div>
 {% endblock %}

@@ -16,6 +16,10 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use App\Entity\Customer;
 use App\Form\CheckoutType;
 use App\Entity\Order;
+use App\Entity\Contact;
+use App\Form\ContactType;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 
 class IndexController extends AbstractController
@@ -27,12 +31,48 @@ class IndexController extends AbstractController
         return $this->render('index/index.html.twig');
     }
 
+    // showing the contact page.
+    #[Route('/contact', name: 'contact')]
+    public function contact(Request $request, ManagerRegistry $doctrine, MailerInterface $mailer): Response
+    {
+        $contact = new Contact;
+
+        $form = $this->createForm(ContactType::class, $contact);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() AND $form->isValid()){
+            $contact->setName($form->get('name')->getData());
+            $contact->setEmail($form->get('email')->getData());          
+            $contact->setSubject($form->get('subject')->getData());     
+            $contact->setMessage($form->get('message')->getData());                
+
+            $entityManager = $doctrine->getManager();
+
+            $entityManager->persist($contact);
+            $entityManager->flush();
+
+            $email = (new Email())
+            ->from('ricardobettonvil@gmail.com')
+            ->to($form->get('email')->getData())
+            ->subject($form->get('subject')->getData())
+            ->text($form->get('message')->getData());
+
+        $mailer->send($email);
+        }
+        return $this->renderForm('forms/contact.html.twig', array(
+            'form' => $form
+        ));
+    }
+
     // json get for the admin table, shows a table of all bbq in the system.
     #[Route('/api/orders', name: 'apiOrders')]
     public function apiOrders(ManagerRegistry $doctrine): Response
-    {
-        return new JsonResponse(['data' => $this->container->get('serializer')->serialize(
-            $doctrine->getRepository(Barbecue::class)->findAll(), 'json')]);
+    {    
+        $response = new JsonResponse(['data' => $this->container->get('serializer')->serialize(
+            $doctrine->getRepository(Barbecue::class)->findAll(), 'json', ['groups' => ['huren']])]);
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+
+        return $response;
     }
 
     #[Route('/api/remove/{id}', name: 'apiRemoveBarbecue')]
@@ -47,9 +87,10 @@ class IndexController extends AbstractController
     {
         $session = $request->getSession();
         $session->set('cart_accessoire', $id);
-        return $this->redirect('/checkout');
+        return $this->redirectToRoute('checkout');
     }
 
+    // showing the checkout page with form attached
     #[Route('/checkout', name: 'checkout')]
     public function checkout(ManagerRegistry $doctrine, Request $request)
     {
@@ -64,42 +105,93 @@ class IndexController extends AbstractController
         $cart = ($session->has('cart_bbq')) ? $session->get('cart_bbq') : NULL; 
         $accessoire = ($session->has('cart_accessoire')) ? $session->get('cart_accessoire') : NULL; 
         $accessoire = $doctrine->getRepository(Accessoire::class)->find((string)$accessoire);
+        $entityManager = $doctrine->getManager();
         $total = 0;
         $bbqOrder = array();
-   
+
+        // check if cart is filled
+        for ($i=0; $i < count($cart); $i++) {
+            // get bbq by id and push it into an array
+            $bbq = $doctrine->getRepository(Barbecue::class)->find((int)$cart[$i]);
+            $price = (int)$bbq->getBarbecuePrice();
+
+            $total += $price;
+
+            array_push($bbqOrder, $bbq);
+        };
+
+        // if empty redirect to index
+        if(empty($bbqOrder)){
+            
+            return $this->redirectToRoute('index');
+        }
+
+        // check if submitted and valid, so yes throw all information into the database
+        // and send it into the delivery page for view.
         if($form->isSubmitted() AND $form->isValid()){
 
+            // fill customer entity
             $customer->setName($form->get('name')->getData());
             $customer->setAdress($form->get('adress')->getData());
             $customer->setPhoneNumber($form->get('phone_number')->getData());
 
             $order->setCustomer($customer);
-            $order->setAccessoires($accessoire);
+            $order->addAccessoire($accessoire);
+            
+            // link the related bbq with the order
             for ($i=0; $i < count($cart); $i++) { 
-                $order->setBarbecue($cart[$i]);
+                $bbq = $doctrine->getRepository(Barbecue::class)->find((int)$cart[$i]);
+                $order->addBarbecue($bbq);
             }
-            $order->setOrderdDate();
-            $order->setStartDate();
-            $order->setEndDate();
-            $order->setPriceTotal();
-            $order->setRemark();
+
+            // fill order entity
+            $order->setOrderdDate(new \DateTime(date('Y-m-d H:i:s')));
+            $order->setStartDate($form->get('start_date')->getData());
+            $order->setEndDate($form->get('end_date')->getData());
+            $order->setPriceTotal(($total + ($total / 100 * 21) + $accessoire->getPrice()));
+            if($form->get('remark')->getData() !== NULL){
+                $order->setRemark($form->get('remark')->getData());
+
+            }
+            $order->setDelivery($form->get('delivery')->getData());
 
             $entityManager->persist($customer);
             $entityManager->persist($order);
             $entityManager->flush();
+
+            // clear session and fill the order information
+            $session = $request->getSession();
+            $session->clear();
+            $session->set('order_done', $bbqOrder);
+            $session->set('order_accessoire_done', $accessoire);
+            $session->set('order_customer', array(
+                'name' => $form->get('name')->getData(),
+                'address' => $form->get('adress')->getData(),
+                'phone_number' => $form->get('phone_number')->getData(),
+                'orderd_date' => date('Y-m-d H:i:s'),
+                'start_date' => $form->get('start_date')->getData()->format('Y-m-d'),
+                'end_date' => $form->get('end_date')->getData()->format('Y-m-d'),
+                'total' => $total,
+                'delivery' => $form->get('delivery')->getData()
+            ));
+
+            return $this->redirectToRoute('order_information', array(
+                'data' => $session->get('order_done'),
+                'customer' => array(
+                    'name' => $form->get('name')->getData(),
+                    'address' => $form->get('adress')->getData(),
+                    'phone_number' => $form->get('phone_number')->getData(),
+                    'orderd_date' => date('Y-m-d H:i:s'),
+                    'start_date' => $form->get('start_date')->getData()->format('Y-m-d'),
+                    'end_date' => $form->get('end_date')->getData()->format('Y-m-d'),
+                    'delivery' => $form->get('delivery')->getData()
+                ),
+                'accessoire' =>  $session->get('order_accessoire_done'),
+                'btw' => ($total / 100 * 21),
+                'total' => ($total + ($total / 100 * 21) + $session->get('order_accessoire_done')->getPrice())
+            ));
         }
 
-        for ($i=0; $i < count($cart); $i++) { 
-            $bbq = $doctrine->getRepository(Barbecue::class)->find((string)$cart[$i]);
-            $total += $bbq->getBarbecuePrice();
-
-            array_push($bbqOrder, $bbq);
-        };
-
-        if(empty($bbqOrder)){
-            
-            return $this->redirect('/');
-        }
         return $this->renderForm('index/checkout.html.twig', array(
             'form' => $form, 
             'data' => $bbqOrder,
@@ -109,10 +201,33 @@ class IndexController extends AbstractController
         ));
     }
 
-      // remove bbq from cart
-      #[Route('/cart/remove/{id}', name: 'cartRemove')]
-      public function cartRemove(Request $request, ManagerRegistry $doctrine, $id)
-      {
+    // Laat de bezorg informatie voor de klant zien.
+    #[Route('order/information', name: 'order_information')]
+    public function orderInformation(ManagerRegistry $doctrine, Request $request){
+        $session = $request->getSession();
+
+        return $this->render('index/checkout_complete.html.twig', array(
+            'data' => $session->get('order_done'),
+            'customer' => array(
+                'name' => $session->get('order_customer')['name'],
+                'address' => $session->get('order_customer')['address'],
+                'phone_number' => $session->get('order_customer')['phone_number'],
+                'orderd_date' => $session->get('order_customer')['orderd_date'],
+                'start_date' => $session->get('order_customer')['start_date'],
+                'end_date' => $session->get('order_customer')['end_date'],
+                'delivery' => $session->get('order_customer')['delivery']
+
+            ),
+            'accessoire' =>  $session->get('order_accessoire_done'),
+            'btw' => ($session->get('order_customer')['total'] / 100 * 21),
+            'total' => ($session->get('order_customer')['total'] + ($session->get('order_customer')['total'] / 100 * 21) + $session->get('order_accessoire_done')->getPrice())
+        ));
+    }
+
+    // remove bbq from cart
+    #[Route('/cart/remove/{id}', name: 'cartRemove')]
+    public function cartRemove(Request $request, ManagerRegistry $doctrine, $id)
+    {
         $session = $request->getSession();
         $cart = $session->get('cart_bbq');
 
@@ -125,7 +240,7 @@ class IndexController extends AbstractController
         array_values($cart);
         $session->set('cart_bbq', $cart);
         return new JsonResponse([]);
-      }
+    }
 
     // clearing cart.
     #[Route('/cart/clear', name: 'cartClear')]
@@ -134,7 +249,7 @@ class IndexController extends AbstractController
         $session = $request->getSession();
         $session->clear();
 
-        return $this->redirect('/huren');
+        return $this->redirectToRoute('huren');
     }
 
     // function for showing the cart.
@@ -156,7 +271,7 @@ class IndexController extends AbstractController
     public function addBqqCart(ManagerRegistry $doctrine, Request $request, $id)
     {
         $session = $request->getSession();
-
+        
         // check if session isset if not create it.
         if(!$session->has('cart_bbq')){
             $session->start();
@@ -174,7 +289,7 @@ class IndexController extends AbstractController
         }
         // dd($session->has('cart_accessoire'));
         if($session->has('cart_accessoire')){
-            return $this->redirect('checkout');
+            return $this->redirectToRoute('checkout');
         }
 
         return $this->render('index/add_accessoires.html.twig', array('data'=> $doctrine->getRepository(Accessoire::class)->findAll()));
@@ -191,7 +306,11 @@ class IndexController extends AbstractController
     #[Route('/orders', name: 'orders')]
     public function orders(): Response
     {
-        return $this->render('index/orders.html.twig');
+        $securityContext = $this->container->get('security.authorization_checker');
+        if ($securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            return $this->render('index/orders.html.twig');
+        }
+        return $this->redirectToRoute('index');
     }
 
     // show bbq select page.
@@ -205,6 +324,10 @@ class IndexController extends AbstractController
     #[Route('/admin/import/barbecue', name: 'import_bqq')]
     public function import_bqq(Request $request, SluggerInterface $slugger, ManagerRegistry $doctrine): Response
     {
+        $securityContext = $this->container->get('security.authorization_checker');
+        if (!$securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            return $this->redirect('/');
+        }
         // getting the entity object and handling the form request
         $barbecue = new Barbecue();
         $form = $this->createForm(BarbecueImportType::class, $barbecue);
@@ -236,7 +359,7 @@ class IndexController extends AbstractController
             }
 
             $barbecue->setName($form->get('name')->getData());
-            $barbecue->setBarbecuePrice($form->get('barbecue_price')->getData());
+            $barbecue->setBarbecuePrice((int) $form->get('barbecue_price')->getData());
             $barbecue->setDescription($form->get('description')->getData());
 
             $entityManager->persist($barbecue);

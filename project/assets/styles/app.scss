@@ -1,9 +1,33 @@
 @import "~bootstrap/scss/bootstrap";
 
-body {
-    background-color: lightgray;
+$main_color: #F28907;
+$menu_color: #F25C05;
+$highlight_color: #A62103;
+$button_color: #590202;
+$font_color: #0D0D0D;
+
+button{
+  background-color: $button_color !important;
+  color: white !important;
+  border: 0 !important;
+
+}
+label{
+  color: $font_color !important;
 }
 
+.navbar{
+  background-color: $menu_color !important;
+}
+
+body {
+    background-color: $main_color;
+}
+a{
+  text-decoration: none;
+  color: #000;
+  cursor: pointer;
+}
 #login_form{
 
     #inputEmail, #inputPassword{
@@ -16,31 +40,69 @@ body {
     margin-top:unset !important;
 }
 
+.image-slider-container{
+  * {box-sizing:border-box}
+
+  img{
+    
+  }
+
+  /* Slideshow container */
+  .slideshow-container {
+    position: relative;
+    margin: auto;
+  }
+  
+  /* Hide the images by default */
+  .mySlides {
+    display: none;
+  }
+  
+  /* Fading animation */
+  .fade {
+    animation-name: fade;
+    animation-duration: 1.5s;
+  }
+  
+  @keyframes fade {
+    from {opacity: .4}
+    to {opacity: 1}
+  }
+  
+}
 
 form{
-    margin-top: 5%;
-    div{
-        margin-bottom: 3%;
-        display: flex;
-        label{
-            text-align: center;
-            width: 50%;
-        }
-        input, textarea, #checkout_start_date{
-            width: 45%;
-        }
-        textarea{
-            height: 100px
-        }
-    }
-    button{
-        margin: 0 41%;
-    }
-    #checkout_start_date, #checkout_end_date{
+
+  margin-top: 5%;
+  .form-control{
+    width: auto !important;
+  }
+  .container{
+    display: flex;
+    flex-direction: column;
+  }
+  div{
+      margin-bottom: 3%;
       display: flex;
-      justify-content: space-between;
-      width: 45%;
-    }
+      label{
+          text-align: center;
+          width: 50%;
+      }
+      input, textarea, #checkout_start_date{
+          width: 45%;
+      }
+      textarea{
+          height: 100px
+      }
+  }
+  button{
+      margin: 0 41%;
+  }
+  #checkout_start_date, #checkout_end_date{
+    display: flex;
+    justify-content: space-between;
+    width: 45%;
+  }
 }
 
 .submit-checkout-container{
@@ -49,7 +111,7 @@ form{
 }
 
 #order-view{
-    margin: 3% 5%;
+
     #button-barbecue-add{
         display: block;
         margin-left: auto;
@@ -63,7 +125,7 @@ form{
   display: flex;
 }
 .rent-barbecue-container{
-  margin: 2% 0;
+  margin: 1% 0;
 
     &:hover{
       transform: scale(1.1);
@@ -71,14 +133,15 @@ form{
       cursor: pointer;
     }
     img{
-      height: 200px;
-      width: 200px;
+      height: 300px;
+      width: 300px;
     }
     .barbecue-title{
       text-align: center;
-      // margin-top: -4%;
-      background-color: white;
+      background-color: $highlight_color !important;
       z-index: 20;
+      font-size: 25px;
+      font-weight: bold;
       color: black;
       width: 100%;
     }
@@ -256,5 +319,12 @@ form{
     text-decoration: none;
     color: #000;
     cursor: pointer;
+  }
+}
+.orderd-complete-container{
+  div{ 
+    justify-content: space-between;
+    display: flex;
+    margin: 1% 13%;
   }
 }

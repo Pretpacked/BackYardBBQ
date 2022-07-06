@@ -6,6 +6,7 @@ use App\Repository\BarbecueRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 
 #[ORM\Entity(repositoryClass: BarbecueRepository::class)]
@@ -14,25 +15,29 @@ class Barbecue
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['huren'])]
     private $id;
 
     #[ORM\Column(type: 'string')]
+    #[Groups(['huren'])]
     private $image;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['huren'])]
     private $name;
 
     #[ORM\Column(type: 'text')]
     private $description;
 
-    #[ORM\Column(type: 'integer')]
-    private $barbecue_price;
-
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['huren'])]
     private $type;
 
-    #[ORM\ManyToMany(mappedBy: 'barbecue', targetEntity: Order::class)]
+    #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'barbecues')]
     private $orders;
+
+    #[ORM\Column(type: 'integer')]
+    private $barbecue_price;
 
     public function __construct()
     {
@@ -81,18 +86,6 @@ class Barbecue
         return $this;
     }
 
-    public function getBarbecuePrice(): ?int
-    {
-        return $this->barbecue_price;
-    }
-
-    public function setBarbecuePrice(int $barbecue_price): self
-    {
-        $this->barbecue_price = $barbecue_price;
-
-        return $this;
-    }
-
     public function getType(): ?string
     {
         return $this->type;
@@ -117,7 +110,7 @@ class Barbecue
     {
         if (!$this->orders->contains($order)) {
             $this->orders[] = $order;
-            $order->setBarbecue($this);
+            $order->addBarbecue($this);
         }
 
         return $this;
@@ -126,11 +119,20 @@ class Barbecue
     public function removeOrder(Order $order): self
     {
         if ($this->orders->removeElement($order)) {
-            // set the owning side to null (unless already changed)
-            if ($order->getBarbecue() === $this) {
-                $order->setBarbecue(null);
-            }
+            $order->removeBarbecue($this);
         }
+
+        return $this;
+    }
+
+    public function getBarbecuePrice(): ?int
+    {
+        return $this->barbecue_price;
+    }
+
+    public function setBarbecuePrice(int $barbecue_price): self
+    {
+        $this->barbecue_price = $barbecue_price;
 
         return $this;
     }
